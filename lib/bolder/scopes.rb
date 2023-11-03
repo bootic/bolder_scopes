@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'bootic/scopes/scope'
-require 'bootic/scopes/aliases'
-require 'bootic/scopes/tree'
+require 'bolder/scopes/scope'
+require 'bolder/scopes/aliases'
+require 'bolder/scopes/tree'
 
-module Bootic
+module Bolder
   class Scopes
     include Comparable
 

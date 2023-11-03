@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "lib/bootic/scopes/version"
+require_relative "lib/bolder/scopes/version"
 
 Gem::Specification.new do |spec|
   spec.name = "bootic_scopes"
-  spec.version = Bootic::Scopes::VERSION
+  spec.version = Bolder::Scopes::VERSION
   spec.authors = ["Ismael Celis"]
   spec.email = ["ismaelct@gmail.com"]
 

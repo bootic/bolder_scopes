@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Bootic
+module Bolder
   class Scopes
     # Scopes define hierarchical permissions
     # They are used to define access to resources

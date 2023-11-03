@@ -1,27 +1,27 @@
 # frozen_string_literal: true
 
-require 'bootic/scopes/scope'
+require 'bolder/scopes/scope'
 
-module Bootic
+module Bolder
   class Scopes
     # A utility to define and access allowed scope hierarchies.
     # Example:
     #
-    #  SCOPES = Bootic::Scopes::Tree.new('bootic') do |bootic|
-    #    bootic.api.products.own.read
-    #    bootic.api.products.all.read
-    #    bootic.api.orders.own.read
+    #  SCOPES = Bolder::Scopes::Tree.new('bolder') do |bolder|
+    #    bolder.api.products.own.read
+    #    bolder.api.products.all.read
+    #    bolder.api.orders.own.read
     #  end
     #
-    #  SCOPES.bootic.api.products.own.read.to_s # => 'bootic.api.products.own.read'
-    #  SCOPES.bootic.api.products.own.to_s # => 'bootic.api.products.own'
-    #  SCOPES.bootic.api.*.read.to_s # => 'bootic.api.*.read'
-    #  SCOPES.bootic.foo.products # => raises Bootic::Scopes::Scope::InvalidScopHierarchyError
+    #  SCOPES.bolder.api.products.own.read.to_s # => 'bolder.api.products.own.read'
+    #  SCOPES.bolder.api.products.own.to_s # => 'bolder.api.products.own'
+    #  SCOPES.bolder.api.*.read.to_s # => 'bolder.api.*.read'
+    #  SCOPES.bolder.foo.products # => raises Bolder::Scopes::Scope::InvalidScopHierarchyError
     #
     # Hierarchies can also be defined using the > operator:
     # This can help avoid typos.
     #
-    #  SCOPES = Bootic::Scopes::Tree.new('bootic') do |bootic|
+    #  SCOPES = Bolder::Scopes::Tree.new('bolder') do |bolder|
     #    api = 'api'
     #    products = 'products'
     #    orders = 'orders'
@@ -29,15 +29,15 @@ module Bootic
     #    all = 'all'
     #    read = 'read'
     #
-    #    bootic > api > products > own > read
-    #    bootic > api > products > all > read
-    #    bootic > api > orders > own > read
+    #    bolder > api > products > own > read
+    #    bolder > api > products > all > read
+    #    bolder > api > orders > own > read
     #  end
     #
     # Block notation can be used where it makes sense:
     #
-    #  SCOPES = Bootic::Scopes::Tree.new('bootic') do |bootic|
-    #    bootic.api.products do |n|
+    #  SCOPES = Bolder::Scopes::Tree.new('bolder') do |bolder|
+    #    bolder.api.products do |n|
     #      n.own do |n|
     #        n.read
     #        n.write
@@ -48,7 +48,7 @@ module Bootic
     #
     # Block notation also works without explicit node argument (but can't access outer variables):
     #
-    #   SCOPES = Bootic::Scopes::Tree.new('bootic') do
+    #   SCOPES = Bolder::Scopes::Tree.new('bolder') do
     #     api.products do
     #       own do
     #         read
@@ -62,8 +62,8 @@ module Bootic
     #
     # Use `_any` to define segments that can be anything:
     #
-    #   SCOPES = Bootic::Scopes::Tree.new('bootic') do |bootic|
-    #     bootic.api.products._any.read
+    #   SCOPES = Bolder::Scopes::Tree.new('bolder') do |bolder|
+    #     bolder.api.products._any.read
     #   end
     #
     # `_any` takes an optional list of allowed values, in which case it has "any of" semantics.
@@ -71,8 +71,8 @@ module Bootic
     # If no values are given, `_any` has "anything" semantics.
     # `_any` can be used to define a catch-all scope:
     #
-    #    SCOPES = Bootic::Scopes::Tree.new('bootic') do |bootic|
-    #      bootic.api do |s|
+    #    SCOPES = Bolder::Scopes::Tree.new('bolder') do |bolder|
+    #      bolder.api do |s|
     #        s.products do |s|
     #          s._any('my_products', /^\d+$/) do |s| # matches 'my_products' or any number-like string
     #            s.read
@@ -82,10 +82,10 @@ module Bootic
     #
     # With the above, the following scopes are allowed, using parenthesis notation to allow numbers and multiple values
     #
-    #    bootic.api.products.(123).read # 'bootic.api.products.123.read'
-    #    bootic.api.products.(1, 2, 3).read # 'bootic.api.products.(1,2,3).read'
-    #    bootic.api.products.('my_products').read # 'bootic.api.products.my_products.read'
-    #    bootic.api.products.my_products.read # works too
+    #    bolder.api.products.(123).read # 'bolder.api.products.123.read'
+    #    bolder.api.products.(1, 2, 3).read # 'bolder.api.products.(1,2,3).read'
+    #    bolder.api.products.('my_products').read # 'bolder.api.products.my_products.read'
+    #    bolder.api.products.my_products.read # works too
     #
     class Tree
       ROOT_SEGMENT = 'root'
@@ -137,7 +137,7 @@ module Bootic
           values = values.flatten
           child = @__recorder.__children.find { |r| r.match?(values) }
           if !child
-            ::Kernel.raise ::Bootic::Scopes::Tree::InvalidScopeHierarchyError, "invalid scope segment '#{values}' after #{self}. Supported segments here are #{@__recorder.__children.map { |e| "'#{e}'" }.join(', ')}, or '*'"
+            ::Kernel.raise ::Bolder::Scopes::Tree::InvalidScopeHierarchyError, "invalid scope segment '#{values}' after #{self}. Supported segments here are #{@__recorder.__children.map { |e| "'#{e}'" }.join(', ')}, or '*'"
           end
 
           values = values.size > 1 ? "(#{values.join(',')})" : values.first
@@ -149,7 +149,7 @@ module Bootic
         end
 
         def inspect
-          %(<Bootic::Scopes::Tree::Node [#{to_s}]>)
+          %(<Bolder::Scopes::Tree::Node [#{to_s}]>)
         end
 
         def respond_to?(method_name, include_private = true)
@@ -161,7 +161,7 @@ module Bootic
         end
 
         def to_scope
-          ::Bootic::Scopes::Scope.new(to_a)
+          ::Bolder::Scopes::Scope.new(to_a)
         end
 
         def hash
@@ -260,7 +260,7 @@ module Bootic
         end
 
         def inspect
-          %(<Bootic::Scopes::Tree::Recorder #{to_s} [#{__children.join(', ')}]>)
+          %(<Bolder::Scopes::Tree::Recorder #{to_s} [#{__children.join(', ')}]>)
         end
 
         private def __register(child_recorder)

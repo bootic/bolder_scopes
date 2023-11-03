@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require 'bootic/scopes'
+require 'bolder/scopes'
 
-RSpec.describe Bootic::Scopes do
-  describe Bootic::Scopes::Scope do
+RSpec.describe Bolder::Scopes do
+  describe Bolder::Scopes::Scope do
     it 'compares scopes' do
       more_specific_scope =  scope("btc.account.shops.mine.update")
       less_specific_scope =  scope("btc.account.shops.mine")
@@ -68,7 +68,7 @@ RSpec.describe Bootic::Scopes do
     end
   end
 
-  describe Bootic::Scopes::Aliases do
+  describe Bolder::Scopes::Aliases do
     it 'maps aliases' do
       aliases = described_class.new(
         'admin' => %w[btc.me btc.account.shops.mine],
@@ -76,7 +76,7 @@ RSpec.describe Bootic::Scopes do
       )
 
       scopes = aliases.map(%w[admin btc.foo.bar])
-      expect(scopes).to be_a(Bootic::Scopes)
+      expect(scopes).to be_a(Bolder::Scopes)
       expect(scopes).to match_array %w[btc.me btc.account.shops.mine btc.foo.bar]
     end
 
@@ -92,7 +92,7 @@ RSpec.describe Bootic::Scopes do
     end
 
     it 'works with scope trees' do
-      scopes = Bootic::Scopes::Tree.new('api') do
+      scopes = Bolder::Scopes::Tree.new('api') do
         admin
         me
         products do

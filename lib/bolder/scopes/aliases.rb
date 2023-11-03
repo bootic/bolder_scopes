@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Bootic
+module Bolder
   class Scopes
     # Aliases for scopes
     # Example:
