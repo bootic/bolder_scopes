@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.authors = ["Ismael Celis"]
   spec.email = ["ismaelct@gmail.com"]
 
-  spec.summary = "Scopes for Bootic apps and APIs"
+  spec.summary = "Scopes for Bolder apps and APIs"
   spec.homepage = "https://github.com/bootic/bootic_scopes"
   spec.required_ruby_version = ">= 2.6.0"
 

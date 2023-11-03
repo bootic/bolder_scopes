@@ -1,24 +1,184 @@
-# BooticScopes
+# Bolder::Scopes
 
-TODO: Delete this and the text below, and describe your gem
-
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/bootic_scopes`. To experiment with that code, run `bin/console` for an interactive prompt.
+Hyerarchical scopes definition and validation for Bolder apps and APIs.
 
 ## Installation
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
+```
+gem 'bolder_scopes', require: 'bolder/scopes'
+```
 
-Install the gem and add to the application's Gemfile by executing:
+## Scope hierarchies
 
-    $ bundle add UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG
+Scopes are permission trees.
+For example, the scope `all.users.create` represents the following structure:
 
-If bundler is not being used to manage dependencies, install the gem by executing:
+```
+all
+  users
+    create
+```
 
-    $ gem install UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG
+A request's token scope is compared with a given endpoint's token to check access permissions, from left to right.
 
-## Usage
+* `all` has access to `all`
+* `all` has access to `all.users`
+* `all.users` has access to `all.users.create`
+* `all.accounts` does NOT have access to `all.users`
+* `all.accounts` does NOT have access to `all.users.create`
 
-TODO: Write usage instructions here
+_Wildcard_ scopes are possible using the special character `*` as one or more segments in a scope.
+For example:
+
+* `all.*.create` has access to `all.accounts.create` or `all.photos.create`
+* `all.*.create` has access to `all.accounts.*`
+* `all.*.create.*` does not have access to `all.accounts.create` (because it's more specific).
+
+## Usage in a web request handler
+
+```ruby
+def index
+  request_scope = access_token.scope # ex. bolder.accounts.123.shops.*.read
+  resource_scope = Bolder::Scopes.wrap(['bolder', 'accounts', current_account.id, 'shops', 'read'].join('.'))
+
+  if request_scope >= resource_scope
+    render
+  else
+    render :unauthorized, status: 403
+  end
+end
+```
+
+## Pre-defined scope trees
+
+Defining scopes as strings can be error prone (easy to make typos or get the hierarchy wrong!).
+
+The `BolderScopes::Tree` utility can be helpful to define all possible scope hierarchies in a single place.
+
+```ruby
+SCOPES = BolderScopes::Tree.new('all') do |all|
+  all.users.update
+  all.users.read
+  all.users.create
+  all.orders.read
+end
+```
+
+The scope tree will expose all defined hierarchies
+
+```ruby
+SCOPES.all.users # 'all.users'
+SCOPES.all.users.create # 'all.users.create'
+```
+
+... But not invalid hierarchies.
+
+```ruby
+SCOPES.all.users.orders # => raises BolderScopes::Scope::InvalidScopHierarchyError
+```
+
+Wilcards work too
+
+```ruby
+SCOPES.all.*.read # 'all.*.read`
+```
+
+Note that wildcards only allow sub-scopes that are shared by all children.
+
+```ruby
+SCOPES.all.*.read # Ok
+SCOPES.all.*.update # raises InvalidScopHierarchyError because not all children of `all.*` support `update`
+```
+
+Hierarchies can also be defined using the > operator:
+This can help avoid typos.
+
+```ruby
+SCOPES = BolderScopes::Tree.new('bootic') do |bootic|
+  api = 'api'
+  products = 'products'
+  orders = 'orders'
+  own = 'own'
+  all = 'all'
+  read = 'read'
+
+  bootic > api > products > own > read
+  bootic > api > products > all > read
+  bootic > api > orders > own > read
+end
+```
+
+Block notation can be used where it makes sense:
+
+```ruby
+SCOPES = BolderScopes::Tree.new('bootic') do |bootic|
+  bootic.api.products do |n|
+    n.own do |n|
+      n.read
+      n.write
+      n > 'list' # use `>` to append variables or constants
+    end
+  end
+end
+```
+
+Block notation also works without explicit node argument (but can't access outer variables):
+
+```ruby
+SCOPES = BolderScopes::Tree.new('bootic') do
+  api.products do
+    own do
+      read
+      write
+    end
+    all do
+      read
+    end
+  end
+end
+```
+
+Use `_any` to define segments that can be anything:
+
+```ruby
+SCOPES = BolderScopes::Tree.new('bootic') do |bootic|
+  bootic.api.products._any.read
+end
+```
+
+`_any` takes an optional list of allowed values, in which case it has "any of" semantics.
+Values are matched with `#===` operator, so they can be regular expressions.
+If no values are given, `_any` has "anything" semantics.
+`_any` can be used to define a catch-all scope:
+
+```ruby
+SCOPES = BolderScopes::Tree.new('bootic') do |bootic|
+ bootic.api do |s|
+   s.products do |s|
+     s._any('my_products', /^\d+$/) do |s| # matches 'my_products' or any number-like string
+       s.read
+     end
+  end
+end
+```
+
+With the above, the following scopes are allowed, using parenthesis notation to allow numbers and multiple values
+
+```ruby
+bootic.api.products.(123).read # 'bootic.api.products.123.read'
+bootic.api.products.(1, 2, 3).read # 'bootic.api.products.(1,2,3).read'
+bootic.api.products.('my_products').read # 'bootic.api.products.my_products.read'
+bootic.api.products.my_products.read # works too
+```
+
+Scope trees also work with scope aliases.
+
+```ruby
+config.aliases = {
+  'admin' => [SCOPES.api.products.own, SCOPES.api.orders.own, SCOPES.api.all.read],
+  'god' => [SCOPES.api]
+}
+```
 
 ## Development
 
@@ -28,4 +188,4 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/bootic_scopes.
+Bug reports and pull requests are welcome on GitHub at https://github.com/bootic/bolder_scopes.
