@@ -53,10 +53,10 @@ end
 
 Defining scopes as strings can be error prone (easy to make typos or get the hierarchy wrong!).
 
-The `BolderScopes::Tree` utility can be helpful to define all possible scope hierarchies in a single place.
+The `Bolder::Scopes::Tree` utility can be helpful to define all possible scope hierarchies in a single place.
 
 ```ruby
-SCOPES = BolderScopes::Tree.new('all') do |all|
+SCOPES = Bolder::Scopes::Tree.new('all') do |all|
   all.users.update
   all.users.read
   all.users.create
@@ -74,7 +74,7 @@ SCOPES.all.users.create # 'all.users.create'
 ... But not invalid hierarchies.
 
 ```ruby
-SCOPES.all.users.orders # => raises BolderScopes::Scope::InvalidScopHierarchyError
+SCOPES.all.users.orders # => raises Bolder::Scopes::Scope::InvalidScopHierarchyError
 ```
 
 Wilcards work too
@@ -94,7 +94,7 @@ Hierarchies can also be defined using the > operator:
 This can help avoid typos.
 
 ```ruby
-SCOPES = BolderScopes::Tree.new('bootic') do |bootic|
+SCOPES = Bolder::Scopes::Tree.new('bolder') do |bolder|
   api = 'api'
   products = 'products'
   orders = 'orders'
@@ -102,17 +102,17 @@ SCOPES = BolderScopes::Tree.new('bootic') do |bootic|
   all = 'all'
   read = 'read'
 
-  bootic > api > products > own > read
-  bootic > api > products > all > read
-  bootic > api > orders > own > read
+  bolder > api > products > own > read
+  bolder > api > products > all > read
+  bolder > api > orders > own > read
 end
 ```
 
 Block notation can be used where it makes sense:
 
 ```ruby
-SCOPES = BolderScopes::Tree.new('bootic') do |bootic|
-  bootic.api.products do |n|
+SCOPES = Bolder::Scopes::Tree.new('bolder') do |bolder|
+  bolder.api.products do |n|
     n.own do |n|
       n.read
       n.write
@@ -125,7 +125,7 @@ end
 Block notation also works without explicit node argument (but can't access outer variables):
 
 ```ruby
-SCOPES = BolderScopes::Tree.new('bootic') do
+SCOPES = Bolder::Scopes::Tree.new('bolder') do
   api.products do
     own do
       read
@@ -141,8 +141,8 @@ end
 Use `_any` to define segments that can be anything:
 
 ```ruby
-SCOPES = BolderScopes::Tree.new('bootic') do |bootic|
-  bootic.api.products._any.read
+SCOPES = Bolder::Scopes::Tree.new('bolder') do |bolder|
+  bolder.api.products._any.read
 end
 ```
 
@@ -152,8 +152,8 @@ If no values are given, `_any` has "anything" semantics.
 `_any` can be used to define a catch-all scope:
 
 ```ruby
-SCOPES = BolderScopes::Tree.new('bootic') do |bootic|
- bootic.api do |s|
+SCOPES = Bolder::Scopes::Tree.new('bolder') do |bolder|
+ bolder.api do |s|
    s.products do |s|
      s._any('my_products', /^\d+$/) do |s| # matches 'my_products' or any number-like string
        s.read
@@ -165,10 +165,10 @@ end
 With the above, the following scopes are allowed, using parenthesis notation to allow numbers and multiple values
 
 ```ruby
-bootic.api.products.(123).read # 'bootic.api.products.123.read'
-bootic.api.products.(1, 2, 3).read # 'bootic.api.products.(1,2,3).read'
-bootic.api.products.('my_products').read # 'bootic.api.products.my_products.read'
-bootic.api.products.my_products.read # works too
+bolder.api.products.(123).read # 'bolder.api.products.123.read'
+bolder.api.products.(1, 2, 3).read # 'bolder.api.products.(1,2,3).read'
+bolder.api.products.('my_products').read # 'bolder.api.products.my_products.read'
+bolder.api.products.my_products.read # works too
 ```
 
 Scope trees also work with scope aliases.
@@ -188,4 +188,4 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/bootic/bolder_scopes.
+Bug reports and pull requests are welcome on GitHub at https://github.com/bolder/bolder_scopes.
