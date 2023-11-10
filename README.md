@@ -5,7 +5,7 @@ Hyerarchical scopes definition and validation for Bolder apps and APIs.
 ## Installation
 
 ```
-gem 'bolder_scopes', require: 'bolder/scopes'
+gem 'bolder_scopes'
 ```
 
 ## Scope hierarchies

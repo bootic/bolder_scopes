@@ -3,7 +3,7 @@
 require_relative "lib/bolder/scopes/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "bootic_scopes"
+  spec.name = 'bolder_scopes'
   spec.version = Bolder::Scopes::VERSION
   spec.authors = ["Ismael Celis"]
   spec.email = ["ismaelct@gmail.com"]
