@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'bolder/scopes/scope'
-require 'bolder/scopes/aliases'
+require 'bolder/scopes/map'
 require 'bolder/scopes/tree'
 
 module Bolder

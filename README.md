@@ -171,13 +171,30 @@ bolder.api.products.('my_products').read # 'bolder.api.products.my_products.read
 bolder.api.products.my_products.read # works too
 ```
 
-Scope trees also work with scope aliases.
+## Scope maps
+
+`Bolder::Scopes::Map` can be used to expand one scope to others.
 
 ```ruby
-config.aliases = {
-  'admin' => [SCOPES.api.products.own, SCOPES.api.orders.own, SCOPES.api.all.read],
+map = Bolder::Scopes::Map.new('read' => ['read.users'])
+map.map('read') # => ['read.users']
+map.map('read:users') # => ['read.users']
+```
+
+Use `Map#expand` to include the original scope in the resulting list.
+
+```ruby
+map = Bolder::Scopes::Map.new('read' => 'read.users')
+map.expand('read') # => Scopes['read', 'read.users']
+```
+
+Scope trees also work with scope maps.
+
+```ruby
+map = Bolder::Scopes::Map.new(
+  SCOPES.admin => [SCOPES.api.products.own, SCOPES.api.orders.own, SCOPES.api.all.read],
   'god' => [SCOPES.api]
-}
+)
 ```
 
 ## Development

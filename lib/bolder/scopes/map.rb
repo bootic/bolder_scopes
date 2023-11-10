@@ -2,12 +2,12 @@
 
 module Bolder
   class Scopes
-    # Aliases for scopes
+    # Maps of scopes
     # Example:
-    #  aliases = Aliases.new('read' => ['read.users'])
-    #  aliases.map('read') # => ['read.users']
-    #  aliases.map('read:users') # => ['read.users']
-    class Aliases
+    #  map = Map.new('read' => ['read.users'])
+    #  map.map('read') # => ['read.users']
+    #  map.map('read:users') # => ['read.users']
+    class Map
       # @param [Hash<#to_s, Array<#to_s>>] scope mapping
       def initialize(mapping = {})
         @mapping = mapping.each.with_object({}) { |(k, v), memo|
@@ -17,8 +17,8 @@ module Bolder
 
       # Map scopes to aliases
       # Example:
-      # aliases = Aliases.new('read' => ['read.users'])
-      # aliases.map('read') # => ['read.users']
+      # map = Map.new('read' => ['read.users'])
+      # map.map('read') # => ['read.users']
       #
       # @param [Array<String>] scopes
       # @return [Scopes]
@@ -33,8 +33,8 @@ module Bolder
       # Expand scopes with aliases, including original scopes
       # Example:
       #
-      # aliases = Aliases.new('read' => 'read.users')
-      # aliases.expand('read') # => Scopes['read', 'read.users']
+      # map = Map.new('read' => 'read.users')
+      # map.expand('read') # => Scopes['read', 'read.users']
       #
       # @param [Array<String>] scopes
       # @return [Scopes]
