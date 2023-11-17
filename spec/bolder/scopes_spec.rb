@@ -84,6 +84,15 @@ RSpec.describe Bolder::Scopes do
     expect(sc1 > sc2).to be true
   end
 
+  specify '#merge' do
+    s1 = described_class.wrap(['api.me'])
+    s2 = described_class.wrap(['api.me', 'api.me.products'])
+    s3 = s1.merge(s2)
+    expect(s3 >= s1).to be true
+    expect(s3 >= s2).to be true
+    expect(s3.to_a).to eq(%w[api.me api.me.products])
+  end
+
   describe "#resolve" do
     it "finds the shallowest matching scope, or nil" do
       scopes = described_class.new(%w[btc.me btc.account.shops.mine btc.account btc.shops.list])

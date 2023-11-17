@@ -149,6 +149,15 @@ module Bolder
         a.size < b.size ? 1 : 0
       end
 
+      # Scope equality in arrays and sets
+      def hash
+        to_s.hash
+      end
+
+      def eql?(other)
+        to_s == other.to_s
+      end
+
       protected
 
       attr_reader :segments

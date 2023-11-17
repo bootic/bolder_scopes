@@ -26,6 +26,19 @@ module Bolder
       self
     end
 
+    # Merge Scopes instances
+
+    # @param another [Scopes]
+    # @return [Scopes]
+    def merge(another)
+      raise ArgumentError, "Can't merge with #{another.class}" unless another.respond_to?(:to_scopes)
+      another_scopes = another.to_scopes
+
+      raise ArgumentError, "Can't merge with #{another.class}" unless another_scopes.is_a?(Scopes)
+
+      self.class.new((scopes + another_scopes.scopes).uniq)
+    end
+
     # Find first, most generic scope that matches given scope
     #
     # @param scope [Scope, String]
