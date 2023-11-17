@@ -9,8 +9,8 @@ module Bolder
     include Comparable
 
     def self.wrap(sc)
-      if sc.is_a?(Scopes)
-        sc
+      if sc.respond_to?(:to_scopes)
+        sc.to_scopes
       else
         new(sc)
       end
@@ -19,6 +19,11 @@ module Bolder
     # @param scopes [Array<Scope, String>]
     def initialize(scopes)
       @scopes = [scopes].flatten.map { |s| Scope.wrap(s) }.sort{ |a, b| b <=> a}
+    end
+
+    # @return [Scopes]
+    def to_scopes
+      self
     end
 
     # Find first, most generic scope that matches given scope

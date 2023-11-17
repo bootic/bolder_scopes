@@ -77,6 +77,13 @@ RSpec.describe Bolder::Scopes do
     expect(described_class.wrap(['api.users']) > described_class.wrap(['api', 'api.me', 'api.users.create'])).to be false
   end
 
+  it 'compares anything that supports #to_scopes() => Scopes' do
+    klass = Struct.new(:to_scopes)
+    sc1 = described_class.wrap(['api.me'])
+    sc2 = klass.new(described_class.wrap(['api.me.products']))
+    expect(sc1 > sc2).to be true
+  end
+
   describe "#resolve" do
     it "finds the shallowest matching scope, or nil" do
       scopes = described_class.new(%w[btc.me btc.account.shops.mine btc.account btc.shops.list])
